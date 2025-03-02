@@ -1,19 +1,41 @@
-version: '3.8'
-services:
-  db:
-    image: postgres:14.1-alpine
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - '5432:5432'
-    volumes:
-      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/postgresql/data 
+version: '3.5'
 
-# ----- Use this for storing in local driver -----
-#     volumes: 
-#       - db:/var/lib/postgresql/data
-# volumes:
-#   db:
-#     driver: local
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 1
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: bastreet123@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: 1
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+    postgres:
+    pgadmin:
